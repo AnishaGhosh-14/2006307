@@ -47,7 +47,7 @@ const Input = () => {
       }
     }
   
-    // Reset the form after submission
+    //Reset the form after submission
     setFormData({
       companyName: '',
       ownerName: '',
@@ -119,14 +119,10 @@ const Input = () => {
       <button onClick={SubmitChange} type="submit">Submit</button>
     </form>
     {showData && (
-        <SecondForm
-          clientSecret={formDataToShow.clientSecret}
-          companyName={formDataToShow.companyName}
-          ownerName={formDataToShow.ownerName}
-          ownerEmail={formDataToShow.ownerEmail}
-          rollNo={formDataToShow.rollNo}
-        />
-      )}
+  <SecondForm
+    formData={formData} // Pass the formData object as props
+  />
+)}
       </>
   );
 };
