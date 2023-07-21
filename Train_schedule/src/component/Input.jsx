@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import axios from 'axios'
+import axios from 'axios';
 import SecondForm from './SecondForm';
 
 const Input = () => {
-    const [showData,setshowdata]=useState(false);
   const [formData, setFormData] = useState({
     companyName: '',
     ownerName: '',
@@ -11,6 +10,9 @@ const Input = () => {
     ownerEmail: '',
     accessCode: '',
   });
+
+  const [responseData, setResponseData] = useState(null);
+  const [error, setError] = useState(null); // State to store the error message
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,34 +22,32 @@ const Input = () => {
     }));
   };
 
-  const SubmitChange=()=>{
-    setshowdata(true);
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post('http://20.244.56.144/train/register', formData);
-  
-      
-      const { clientSecret, companyName, ownerName, ownerEmail, rollNo } = response.data;
-  
-      console.log("Client Secret:", clientSecret);
-      console.log("Company Name:", companyName);
-      console.log("Owner Name:", ownerName);
-      console.log("Owner Email:", ownerEmail);
-      console.log("Roll No:", rollNo);
-  
+      const responseData = {
+        clientSecret: response.data.clientSecret,
+        clientId:response.data.clientID,
+        companyName: response.data.companyName,
+        ownerName: response.data.ownerName,
+        ownerEmail: response.data.ownerEmail,
+        rollNo: response.data.rollNo,
+      };
+      setResponseData(responseData);
+      setError(null); // Reset the error state if the submission is successful
     } catch (err) {
       if (err.response) {
         console.log("Error Status:", err.response.status);
         console.log("Error Data:", err.response.data);
+
+        // Set the error state with the error message received from the server
+        setError(err.response.data.message || 'Something went wrong.');
       } else {
         console.log("Error:", err.message);
+        setError('Something went wrong.');
       }
     }
-  
-    //Reset the form after submission
     setFormData({
       companyName: '',
       ownerName: '',
@@ -55,15 +55,14 @@ const Input = () => {
       ownerEmail: '',
       accessCode: '',
     });
-    
-  }
+  };
 
   return (
-    <>
-    <form onSubmit={handleSubmit}>
+    <div>
+      <form onSubmit={handleSubmit}>
       <div>
         <label htmlFor="companyName">Company Name:</label>
-        <input
+         <input
           type="text"
           id="companyName"
           name="companyName"
@@ -116,14 +115,11 @@ const Input = () => {
           required
         />
       </div>
-      <button onClick={SubmitChange} type="submit">Submit</button>
-    </form>
-    {showData && (
-  <SecondForm
-    formData={formData} // Pass the formData object as props
-  />
-)}
-      </>
+        <button type="submit">Submit</button>
+      </form>
+      {error && <p>Error: {error}</p>}
+      {responseData && <SecondForm responseData={responseData} />}
+    </div>
   );
 };
 
